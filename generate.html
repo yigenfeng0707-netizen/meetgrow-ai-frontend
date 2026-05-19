@@ -29,17 +29,17 @@ a:hover{text-decoration:underline}
 </head>
 <body>
 <nav class="navbar"><div class="navbar-inner">
-<a href="/" class="logo">MeetGrow AI</a>
+<a href="index.html" class="logo">MeetGrow AI</a>
 <div class="nav-links">
-<a href="/app">控制台</a>
+<a href="app.html">控制台</a>
 <a href="#" onclick="logout()">退出</a>
 <span id="navUser" style="font-size:13px;color:var(--muted)"></span>
 </div></div></nav>
 <script>
 const _u=JSON.parse(localStorage.getItem('mg_user')||'null');
-if(!_u){location.href='/login'}
-document.getElementById('navUser').textContent=_u.name||_u.phone;
-function logout(){localStorage.removeItem('mg_token');localStorage.removeItem('mg_user');location.href='/'}
+if(!_u){location.href='login.html'}
+document.getElementById('navUser').textContent=_u.name||_u.email;
+function logout(){localStorage.removeItem('mg_token');localStorage.removeItem('mg_user');location.href='index.html'}
 </script>
 <style>
 .gen{max-width:900px;margin:0 auto;padding:30px 20px}
@@ -65,10 +65,11 @@ textarea:focus{border-color:var(--primary)}
 .module li{font-size:13px;margin:3px 0}
 .error{color:#e74c3c;background:#fdf0ef;border:1px solid #f5c6cb;border-radius:8px;padding:12px;margin-top:12px;font-size:13px}
 .loading-skeleton{text-align:center;padding:40px 20px;color:var(--muted)}
+.timeout-warn{display:none;color:#fa8c16;background:#fff7e6;border:1px solid #ffe58f;border-radius:8px;padding:12px;margin-top:12px;font-size:13px}
 </style>
 <div class="gen">
 <h2>生成增长方案</h2>
-<p class="sub">描述你的活动需求，7 个 AI 智能体协同生成 12 个模块</p>
+<p class="sub">描述你的活动需求，7 个 AI 智能体协同生成 12 个模块（约需 1-2 分钟）</p>
 <div class="input-card">
 <textarea id="prompt" placeholder="例如：我要举办一场'2026企业AI落地增长峰会'，目标客户是传统企业老板、制造业老板、AI创业者、投资人和园区负责人。活动规模1000人，目标是招商、卖票、私域沉淀、城市合伙人招募和会后成交。">我要举办一场"2026企业AI落地增长峰会"，目标客户是传统企业老板、制造业老板、AI创业者、投资人和园区负责人。活动规模1000人，目标是招商、卖票、私域沉淀、城市合伙人招募和会后成交。</textarea>
 <div class="btn-row">
@@ -78,21 +79,27 @@ textarea:focus{border-color:var(--primary)}
 </div>
 <div class="progress-card" id="progressCard">
 <div class="progress-step" id="progressBar"><div class="spinner"></div><span class="step-msg">正在准备...</span></div>
+<div class="timeout-warn" id="timeoutWarn">⏱ 生成时间较长，请耐心等待（通常 1-2 分钟）</div>
 </div>
 <div id="result"></div>
 </div>
 <script>
 const API_BASE = 'https://meetgrow-ai-djprnpppku.cn-hangzhou.fcapp.run';
+let _genTimer=null,_timeoutWarn=null,_es=null;
 async function generate(){const p=document.getElementById('prompt').value.trim();if(!p){alert('请输入活动需求');return}
 const btn=document.getElementById('btnGenerate');const pc=document.getElementById('progressCard');const r=document.getElementById('result')
 btn.disabled=true;btn.textContent='⏳ 生成中...';pc.style.display='block';r.style.display='none';r.innerHTML=''
 document.getElementById('progressBar').innerHTML='<div class="spinner"></div><span class="step-msg">正在生成，请耐心等待...</span>'
-let finalData=null;const es=new EventSource(API_BASE+'/api/v1/stream?prompt='+encodeURIComponent(p)+'&token='+encodeURIComponent(localStorage.getItem('mg_token')||''))
-es.addEventListener('progress',e=>{const d=JSON.parse(e.data);document.getElementById('progressBar').innerHTML='<span class="step-done">\u2713</span><span class="step-msg">'+d.message+'</span>'})
-es.addEventListener('result',e=>{const d=JSON.parse(e.data);if(d.data)finalData=d.data})
-es.addEventListener('done',()=>{es.close();btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none'
-if(finalData){renderResult(finalData)}else{fetch(API_BASE+'/api/v1/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,stream:false})}).then(r=>r.json()).then(res=>{if(res.success)renderResult(res.data);else document.getElementById('result').innerHTML='<div class="error">'+res.error+'</div>'})}})
-es.onerror=()=>{es.close();btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none'}}
+document.getElementById('timeoutWarn').style.display='none'
+_timeoutWarn=setTimeout(()=>{document.getElementById('timeoutWarn').style.display='block'},60000)
+_genTimer=setTimeout(()=>{_es&&_es.close();btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none';showError('生成超时，请重试')},540000)
+let finalData=null;_es=new EventSource(API_BASE+'/api/v1/stream?prompt='+encodeURIComponent(p))
+_es.addEventListener('progress',e=>{const d=JSON.parse(e.data);document.getElementById('progressBar').innerHTML='<span class="step-done">\u2713</span><span class="step-msg">'+d.message+'</span>'})
+_es.addEventListener('result',e=>{const d=JSON.parse(e.data);if(d.data)finalData=d.data})
+_es.addEventListener('done',()=>{_es.close();clearTimeout(_genTimer);clearTimeout(_timeoutWarn);btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none'
+if(finalData){renderResult(finalData)}else{fetch(API_BASE+'/api/v1/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,stream:false})}).then(r=>r.json()).then(res=>{if(res.success)renderResult(res.data);else document.getElementById('result').innerHTML='<div class="error">'+(res.error||res.detail||'生成失败')+'</div>'})}})
+_es.onerror=()=>{_es.close();clearTimeout(_genTimer);clearTimeout(_timeoutWarn);btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none'}}
+function showError(msg){const r=document.getElementById('result');r.style.display='block';r.innerHTML='<div class="error">'+msg+'</div>'}
 function clearAll(){document.getElementById('prompt').value='';document.getElementById('result').style.display='none';document.getElementById('result').innerHTML=''}
 function renderResult(state){const r=document.getElementById('result');r.style.display='block';let html=''
 const mods=[['module_1','大会定位'],['module_2','目标客户画像'],['module_3','核心卖点'],['module_4','招商合作方案'],['module_5','赞助权益设计'],['module_6','嘉宾邀约话术'],['module_7','朋友圈推广文案'],['module_8','短视频脚本'],['module_9','社群运营SOP'],['module_10','客户分层跟进策略'],['module_11','会后成交转化话术'],['module_12','执行清单与里程碑']]
@@ -106,5 +113,5 @@ html+='</div>'}else{html+='<div class="field"><div class="field-label">'+k+'</di
 html+='</div>'}
 r.innerHTML=html}
 </script>
-<div class="footer">MeetGrow AI v0.1.0 &mdash; 会展招商增长智能体系统</div>
+<div class="footer">MeetGrow AI v0.2.0 &mdash; 会展招商增长智能体系统</div>
 </body></html>

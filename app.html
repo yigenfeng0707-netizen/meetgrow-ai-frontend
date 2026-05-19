@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MeetGrow AI - 会展招商增长方案生成器</title>
+<title>MeetGrow AI - 控制台</title>
 <style>
 :root{--primary:#667eea;--primary-dark:#5a6fd6;--gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:12px;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--muted:#8e8ea0}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -29,17 +29,17 @@ a:hover{text-decoration:underline}
 </head>
 <body>
 <nav class="navbar"><div class="navbar-inner">
-<a href="/" class="logo">MeetGrow AI</a>
+<a href="index.html" class="logo">MeetGrow AI</a>
 <div class="nav-links">
-<a href="/app">控制台</a>
+<a href="generate.html">生成方案</a>
 <a href="#" onclick="logout()">退出</a>
 <span id="navUser" style="font-size:13px;color:var(--muted)"></span>
 </div></div></nav>
 <script>
 const _u=JSON.parse(localStorage.getItem('mg_user')||'null');
-if(!_u){location.href='/login'}
-document.getElementById('navUser').textContent=_u.name||_u.phone;
-function logout(){localStorage.removeItem('mg_token');localStorage.removeItem('mg_user');location.href='/'}
+if(!_u){location.href='login.html'}
+document.getElementById('navUser').textContent=_u.name||_u.email;
+function logout(){localStorage.removeItem('mg_token');localStorage.removeItem('mg_user');location.href='index.html'}
 </script>
 <style>
 .dash{max-width:1100px;margin:0 auto;padding:30px 20px}
@@ -65,7 +65,7 @@ function logout(){localStorage.removeItem('mg_token');localStorage.removeItem('m
 <h3>🚀 快速开始</h3>
 <p>输入活动需求，AI 自动生成 12 个模块的完整增长方案</p>
 </div>
-<a href="/generate" class="btn btn-primary">立即生成方案 &rarr;</a>
+<a href="generate.html" class="btn btn-primary">立即生成方案 &rarr;</a>
 </div>
 <h2>全部功能</h2>
 <p class="sub">12 大模块，覆盖会展招商全生命周期</p>
@@ -74,7 +74,7 @@ function logout(){localStorage.removeItem('mg_token');localStorage.removeItem('m
 <script>
 const modules=[{"key":"module_1","label":"大会定位","icon":"🎯","desc":"一句话定位、目标受众、核心价值主张"},{"key":"module_2","label":"目标客户画像","icon":"👥","desc":"多维用户画像，锁定高价值人群"},{"key":"module_3","label":"核心卖点","icon":"💡","desc":"提炼差异化卖点与转化钩子"},{"key":"module_4","label":"招商合作方案","icon":"🤝","desc":"分级赞助体系与合作权益"},{"key":"module_5","label":"赞助权益设计","icon":"🏆","desc":"多层级赞助包与ROI测算"},{"key":"module_6","label":"嘉宾邀约话术","icon":"🎤","desc":"政府/专家/企业家/KOL 邀约脚本"},{"key":"module_7","label":"朋友圈推广文案","icon":"📱","desc":"全周期朋友圈推广文案"},{"key":"module_8","label":"短视频脚本","icon":"🎬","desc":"多类型短视频拍摄脚本"},{"key":"module_9","label":"社群运营SOP","icon":"💬","desc":"7 天社群冷启动运营流程"},{"key":"module_10","label":"客户分层策略","icon":"📊","desc":"A/B/C/D 跟进策略与转化率"},{"key":"module_11","label":"成交转化话术","icon":"🤖","desc":"三阶段成交跟进脚本"},{"key":"module_12","label":"执行清单","icon":"✅","desc":"30 天倒计时执行清单与应急预案"}];
 const grid=document.getElementById('moduleGrid');
-for(const m of modules){const div=document.createElement('div');div.className='module-card';div.innerHTML='<div class="icon">'+m.icon+'</div><h3>'+m.label+'</h3><p>'+m.desc+'</p><div class="badge">即将生成</div>';div.onclick=function(){location.href='/generate'};grid.appendChild(div)}
+for(const m of modules){const div=document.createElement('div');div.className='module-card';div.innerHTML='<div class="icon">'+m.icon+'</div><h3>'+m.label+'</h3><p>'+m.desc+'</p><div class="badge">即将生成</div>';div.onclick=function(){location.href='generate.html'};grid.appendChild(div)}
 </script>
-<div class="footer">MeetGrow AI v0.1.0 &mdash; 会展招商增长智能体系统</div>
+<div class="footer">MeetGrow AI v0.2.0 &mdash; 会展招商增长智能体系统</div>
 </body></html>
