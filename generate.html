@@ -65,7 +65,8 @@ textarea:focus{border-color:var(--primary)}
 .module li{font-size:13px;margin:3px 0}
 .error{color:#e74c3c;background:#fdf0ef;border:1px solid #f5c6cb;border-radius:8px;padding:12px;margin-top:12px;font-size:13px}
 .loading-skeleton{text-align:center;padding:40px 20px;color:var(--muted)}
-.timeout-warn{display:none;color:#fa8c16;background:#fff7e6;border:1px solid #ffe58f;border-radius:8px;padding:12px;margin-top:12px;font-size:13px}
+.progress-bar-outer{width:100%;height:8px;background:#e0e0e0;border-radius:4px;margin-top:12px;overflow:hidden}
+.progress-bar-inner{height:100%;background:var(--gradient);border-radius:4px;transition:width .5s ease;width:0%}
 </style>
 <div class="gen">
 <h2>生成增长方案</h2>
@@ -78,40 +79,148 @@ textarea:focus{border-color:var(--primary)}
 </div>
 </div>
 <div class="progress-card" id="progressCard">
-<div class="progress-step" id="progressBar"><div class="spinner"></div><span class="step-msg">正在准备...</span></div>
-<div class="timeout-warn" id="timeoutWarn">⏱ 生成时间较长，请耐心等待（通常 1-2 分钟）</div>
+<div class="progress-step" id="progressBar"><div class="spinner"></div><span class="step-msg" id="stepMsg">正在准备...</span></div>
+<div class="progress-bar-outer"><div class="progress-bar-inner" id="progressFill"></div></div>
 </div>
 <div id="result"></div>
 </div>
 <script>
 const API_BASE = 'https://meetgrow-ai-djprnpppku.cn-hangzhou.fcapp.run';
-let _genTimer=null,_timeoutWarn=null,_es=null;
-async function generate(){const p=document.getElementById('prompt').value.trim();if(!p){alert('请输入活动需求');return}
-const btn=document.getElementById('btnGenerate');const pc=document.getElementById('progressCard');const r=document.getElementById('result')
-btn.disabled=true;btn.textContent='⏳ 生成中...';pc.style.display='block';r.style.display='none';r.innerHTML=''
-document.getElementById('progressBar').innerHTML='<div class="spinner"></div><span class="step-msg">正在生成，请耐心等待...</span>'
-document.getElementById('timeoutWarn').style.display='none'
-_timeoutWarn=setTimeout(()=>{document.getElementById('timeoutWarn').style.display='block'},60000)
-_genTimer=setTimeout(()=>{_es&&_es.close();btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none';showError('生成超时，请重试')},540000)
-let finalData=null;_es=new EventSource(API_BASE+'/api/v1/stream?prompt='+encodeURIComponent(p))
-_es.addEventListener('progress',e=>{const d=JSON.parse(e.data);document.getElementById('progressBar').innerHTML='<span class="step-done">\u2713</span><span class="step-msg">'+d.message+'</span>'})
-_es.addEventListener('result',e=>{const d=JSON.parse(e.data);if(d.data)finalData=d.data})
-_es.addEventListener('done',()=>{_es.close();clearTimeout(_genTimer);clearTimeout(_timeoutWarn);btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none'
-if(finalData){renderResult(finalData)}else{fetch(API_BASE+'/api/v1/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,stream:false})}).then(r=>r.json()).then(res=>{if(res.success)renderResult(res.data);else document.getElementById('result').innerHTML='<div class="error">'+(res.error||res.detail||'生成失败')+'</div>'})}})
-_es.onerror=()=>{_es.close();clearTimeout(_genTimer);clearTimeout(_timeoutWarn);btn.disabled=false;btn.textContent='\uD83D\uDE80 生成方案';pc.style.display='none'}}
-function showError(msg){const r=document.getElementById('result');r.style.display='block';r.innerHTML='<div class="error">'+msg+'</div>'}
-function clearAll(){document.getElementById('prompt').value='';document.getElementById('result').style.display='none';document.getElementById('result').innerHTML=''}
-function renderResult(state){const r=document.getElementById('result');r.style.display='block';let html=''
-const mods=[['module_1','大会定位'],['module_2','目标客户画像'],['module_3','核心卖点'],['module_4','招商合作方案'],['module_5','赞助权益设计'],['module_6','嘉宾邀约话术'],['module_7','朋友圈推广文案'],['module_8','短视频脚本'],['module_9','社群运营SOP'],['module_10','客户分层跟进策略'],['module_11','会后成交转化话术'],['module_12','执行清单与里程碑']]
-for(const[key,label]of mods){const data=state[key];if(!data||Object.keys(data).length===0){html+='<div class="module"><h2>'+label+'</h2><p style="color:#999">（待生成）</p></div>';continue}
-html+='<div class="module"><h2>'+label+'</h2>'
-for(const[k,v]of Object.entries(data)){if(Array.isArray(v)){html+='<div class="field"><div class="field-label">'+k+'</div><ul>'
-for(const item of v){if(typeof item==='object'){html+='<li>';for(const[ik,iv]of Object.entries(item)){if(Array.isArray(iv)){html+='<b>'+ik+':</b> '+iv.join(', ')+'<br>'}else{html+='<b>'+ik+':</b> '+iv+'<br>'}}html+='</li>'}else{html+='<li>'+item+'</li>'}}
-html+='</ul></div>'}else if(typeof v==='object'&&v!==null){html+='<div class="field"><div class="field-label">'+k+'</div>'
-for(const[ik,iv]of Object.entries(v)){if(Array.isArray(iv)){html+='<div style="margin:4px 0 4px 12px"><b>'+ik+':</b> '+iv.join(', ')+'</div>'}else{html+='<div style="margin:4px 0 4px 12px"><b>'+ik+':</b> '+iv+'</div>'}}
-html+='</div>'}else{html+='<div class="field"><div class="field-label">'+k+'</div><div class="field-value">'+v+'</div></div>'}}
-html+='</div>'}
-r.innerHTML=html}
+const PROGRESS_STEPS = [
+  '解析需求...', '生成大会定位...', '生成目标客户画像...', '生成核心卖点...',
+  '生成招商合作方案...', '生成赞助权益设计...', '生成嘉宾邀约话术...',
+  '生成朋友圈推广文案...', '生成短视频脚本...', '生成社群运营SOP...',
+  '生成客户分层策略...', '生成成交转化话术...', '生成执行清单...',
+  '整合方案...'
+];
+
+async function generate(){
+  const p = document.getElementById('prompt').value.trim();
+  if(!p){alert('请输入活动需求');return}
+  const btn = document.getElementById('btnGenerate');
+  const pc = document.getElementById('progressCard');
+  const r = document.getElementById('result');
+  btn.disabled = true;
+  btn.textContent = '⏳ 生成中...';
+  pc.style.display = 'block';
+  r.style.display = 'none';
+  r.innerHTML = '';
+
+  // Simulate progress
+  let stepIdx = 0;
+  const stepMsg = document.getElementById('stepMsg');
+  const progressFill = document.getElementById('progressFill');
+  stepMsg.textContent = PROGRESS_STEPS[0];
+  progressFill.style.width = '0%';
+
+  const progressInterval = setInterval(()=>{
+    if(stepIdx < PROGRESS_STEPS.length - 1){
+      stepIdx++;
+      stepMsg.textContent = PROGRESS_STEPS[stepIdx];
+      progressFill.style.width = Math.round((stepIdx / (PROGRESS_STEPS.length - 1)) * 90) + '%';
+    }
+  }, 8000);
+
+  try{
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=>controller.abort(), 600000); // 10 min timeout
+
+    const response = await fetch(API_BASE + '/api/v1/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({prompt: p, stream: false}),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    const res = await response.json();
+
+    if(res.success){
+      progressFill.style.width = '100%';
+      stepMsg.textContent = '生成完成！';
+      setTimeout(()=>{
+        clearInterval(progressInterval);
+        pc.style.display = 'none';
+        renderResult(res.data);
+      }, 500);
+    } else {
+      throw new Error(res.error || res.detail || '生成失败');
+    }
+  } catch(e){
+    clearInterval(progressInterval);
+    pc.style.display = 'none';
+    r.style.display = 'block';
+    if(e.name === 'AbortError'){
+      r.innerHTML = '<div class="error">生成超时（超过 10 分钟），请缩短需求描述后重试</div>';
+    } else {
+      r.innerHTML = '<div class="error">' + e.message + '</div>';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 生成方案';
+  }
+}
+
+function clearAll(){
+  document.getElementById('prompt').value = '';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('progressCard').style.display = 'none';
+}
+
+function renderResult(state){
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  let html = '';
+  const mods = [
+    ['module_1','大会定位'],['module_2','目标客户画像'],['module_3','核心卖点'],
+    ['module_4','招商合作方案'],['module_5','赞助权益设计'],['module_6','嘉宾邀约话术'],
+    ['module_7','朋友圈推广文案'],['module_8','短视频脚本'],['module_9','社群运营SOP'],
+    ['module_10','客户分层跟进策略'],['module_11','会后成交转化话术'],['module_12','执行清单与里程碑']
+  ];
+  for(const [key,label] of mods){
+    const data = state[key];
+    if(!data || Object.keys(data).length === 0){
+      html += '<div class="module"><h2>'+label+'</h2><p style="color:#999">（待生成）</p></div>';
+      continue;
+    }
+    html += '<div class="module"><h2>'+label+'</h2>';
+    for(const [k,v] of Object.entries(data)){
+      if(Array.isArray(v)){
+        html += '<div class="field"><div class="field-label">'+k+'</div><ul>';
+        for(const item of v){
+          if(typeof item === 'object'){
+            html += '<li>';
+            for(const [ik,iv] of Object.entries(item)){
+              if(Array.isArray(iv)){
+                html += '<b>'+ik+':</b> '+iv.join(', ')+'<br>';
+              } else {
+                html += '<b>'+ik+':</b> '+iv+'<br>';
+              }
+            }
+            html += '</li>';
+          } else {
+            html += '<li>'+item+'</li>';
+          }
+        }
+        html += '</ul></div>';
+      } else if(typeof v === 'object' && v !== null){
+        html += '<div class="field"><div class="field-label">'+k+'</div>';
+        for(const [ik,iv] of Object.entries(v)){
+          if(Array.isArray(iv)){
+            html += '<div style="margin:4px 0 4px 12px"><b>'+ik+':</b> '+iv.join(', ')+'</div>';
+          } else {
+            html += '<div style="margin:4px 0 4px 12px"><b>'+ik+':</b> '+iv+'</div>';
+          }
+        }
+        html += '</div>';
+      } else {
+        html += '<div class="field"><div class="field-label">'+k+'</div><div class="field-value">'+v+'</div></div>';
+      }
+    }
+    html += '</div>';
+  }
+  r.innerHTML = html;
+}
 </script>
 <div class="footer">MeetGrow AI v0.2.0 &mdash; 会展招商增长智能体系统</div>
 </body></html>
