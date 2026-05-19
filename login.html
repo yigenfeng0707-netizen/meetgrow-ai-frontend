@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetGrow AI - 会展招商增长方案生成器</title>
+<style>
+:root{--primary:#667eea;--primary-dark:#5a6fd6;--gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:12px;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--muted:#8e8ea0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.navbar{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,0.06);position:sticky;top:0;z-index:100}
+.navbar-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.navbar .logo{font-weight:700;font-size:18px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.navbar .nav-links{display:flex;gap:20px;align-items:center}
+.navbar .nav-links a{font-size:14px;color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;gap:6px}
+.btn-primary{background:var(--gradient);color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary)}
+.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-sm{padding:6px 16px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 20px}
+.tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;background:rgba(102,126,234,.1);color:var(--primary)}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+<a href="/" class="logo">MeetGrow AI</a>
+<div class="nav-links">
+<a href="/login">登录</a>
+<a href="/login" class="btn btn-primary btn-sm">免费试用</a>
+</div></div></nav>
+<style>
+.auth-wrap{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:36px;width:100%;max-width:400px}
+.auth-card h2{text-align:center;font-size:22px;margin-bottom:6px}
+.auth-card .sub{text-align:center;font-size:13px;color:var(--muted);margin-bottom:24px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.form-group input{width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;transition:border-color .2s;outline:none}
+.form-group input:focus{border-color:var(--primary)}
+.form-group .input-row{display:flex;gap:8px}
+.form-group .input-row input{flex:1}
+.form-group .input-row .btn{white-space:nowrap}
+.error-msg{color:#e74c3c;font-size:13px;margin:8px 0;display:none}
+.auth-card .btn-primary{width:100%;padding:12px;font-size:15px}
+.auth-card .switch-link{text-align:center;margin-top:16px;font-size:13px;color:var(--muted)}
+</style>
+<div class="auth-wrap">
+<div class="auth-card">
+<h2 id="authTitle">登录</h2>
+<p class="sub" id="authSub">输入手机号，接收验证码</p>
+<div class="error-msg" id="authError"></div>
+<div class="form-group">
+<label>手机号</label>
+<input type="tel" id="phone" placeholder="请输入手机号" maxlength="11">
+</div>
+<div class="form-group" id="nameGroup" style="display:none">
+<label>昵称</label>
+<input type="text" id="name" placeholder="怎么称呼你（可选）">
+</div>
+<div class="form-group">
+<label>验证码</label>
+<div class="input-row">
+<input type="text" id="code" placeholder="输入 6 位验证码" maxlength="6">
+<button class="btn btn-outline btn-sm" id="sendCodeBtn" onclick="sendCode()">获取验证码</button>
+</div>
+</div>
+<button class="btn btn-primary" id="submitBtn" onclick="verify()">登录</button>
+<div class="switch-link">
+<span id="switchText">还没有账号？</span>
+<a href="#" id="switchLink" onclick="toggleMode()">立即注册</a>
+</div>
+</div>
+</div>
+<script>
+const API_BASE = 'https://meetgrow-ai-djprnpppku.cn-hangzhou.fcapp.run';
+let _mode='login';
+function toggleMode(){_mode=_mode==='login'?'register':'login';const t=document.getElementById('authTitle');t.textContent=_mode==='login'?'登录':'注册';document.getElementById('authSub').textContent=_mode==='login'?'输入手机号，接收验证码':'创建账号，开始使用';document.getElementById('submitBtn').textContent=_mode==='login'?'登录':'注册';document.getElementById('switchText').textContent=_mode==='login'?'还没有账号？':'已有账号？';document.getElementById('switchLink').textContent=_mode==='login'?'立即注册':'去登录';document.getElementById('nameGroup').style.display=_mode==='login'?'none':'block'}
+async function sendCode(){const phone=document.getElementById('phone').value.trim();if(!phone||phone.length<8){showError('请输入有效手机号');return}
+const btn=document.getElementById('sendCodeBtn');btn.disabled=true;btn.textContent='发送中...'
+try{const r=await fetch(API_BASE+'/api/auth/send-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})});const d=await r.json();if(!d.success)throw new Error(d.detail||'发送失败')
+let s=60;btn.textContent=s+'s';const iv=setInterval(()=>{s--;if(s<=0){clearInterval(iv);btn.disabled=false;btn.textContent='重新获取'}else{btn.textContent=s+'s'}},1000)
+hideError()}catch(e){btn.disabled=false;btn.textContent='获取验证码';showError(e.message)}}
+async function verify(){const phone=document.getElementById('phone').value.trim();const code=document.getElementById('code').value.trim();const name=document.getElementById('name').value.trim()
+if(!phone||!code){showError('请填写手机号和验证码');return}
+if(code!=='123456'){showError('测试阶段验证码为 123456');return}
+try{const r=await fetch(API_BASE+'/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,code,name})});const d=await r.json();if(!d.success)throw new Error(d.detail||'验证失败')
+localStorage.setItem('mg_token',d.token);localStorage.setItem('mg_user',JSON.stringify(d.user));location.href='/app'}catch(e){showError(e.message)}}
+function showError(msg){const el=document.getElementById('authError');el.textContent=msg;el.style.display='block'}
+function hideError(){document.getElementById('authError').style.display='none'}
+</script>
+<div class="footer">MeetGrow AI v0.1.0 &mdash; 会展招商增长智能体系统</div>
+</body></html>

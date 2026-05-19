@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetGrow AI - 会展招商增长方案生成器</title>
+<style>
+:root{--primary:#667eea;--primary-dark:#5a6fd6;--gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:12px;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--muted:#8e8ea0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.navbar{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,0.06);position:sticky;top:0;z-index:100}
+.navbar-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.navbar .logo{font-weight:700;font-size:18px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.navbar .nav-links{display:flex;gap:20px;align-items:center}
+.navbar .nav-links a{font-size:14px;color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;gap:6px}
+.btn-primary{background:var(--gradient);color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary)}
+.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-sm{padding:6px 16px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 20px}
+.tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;background:rgba(102,126,234,.1);color:var(--primary)}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+<a href="/" class="logo">MeetGrow AI</a>
+<div class="nav-links">
+<a href="/app">控制台</a>
+<a href="#" onclick="logout()">退出</a>
+<span id="navUser" style="font-size:13px;color:var(--muted)"></span>
+</div></div></nav>
+<script>
+const _u=JSON.parse(localStorage.getItem('mg_user')||'null');
+if(!_u){location.href='/login'}
+document.getElementById('navUser').textContent=_u.name||_u.phone;
+function logout(){localStorage.removeItem('mg_token');localStorage.removeItem('mg_user');location.href='/'}
+</script>
+<style>
+.dash{max-width:1100px;margin:0 auto;padding:30px 20px}
+.dash h2{font-size:24px;margin-bottom:4px}
+.dash .sub{font-size:14px;color:var(--muted);margin-bottom:24px}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.module-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;cursor:pointer;transition:all .2s;position:relative}
+.module-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.module-card .icon{font-size:28px;margin-bottom:10px}
+.module-card h3{font-size:15px;margin-bottom:4px}
+.module-card p{font-size:12px;color:var(--muted)}
+.module-card .badge{position:absolute;top:12px;right:12px;font-size:10px;padding:2px 8px;border-radius:10px;background:var(--gradient);color:#fff}
+.quick-start{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.quick-start .info{flex:1}
+.quick-start .info h3{font-size:16px;margin-bottom:4px}
+.quick-start .info p{font-size:13px;color:var(--muted)}
+.quick-start .btn{font-size:14px;padding:12px 28px}
+@media(max-width:640px){.module-grid{grid-template-columns:1fr}}
+</style>
+<div class="dash">
+<div class="quick-start">
+<div class="info">
+<h3>🚀 快速开始</h3>
+<p>输入活动需求，AI 自动生成 12 个模块的完整增长方案</p>
+</div>
+<a href="/generate" class="btn btn-primary">立即生成方案 &rarr;</a>
+</div>
+<h2>全部功能</h2>
+<p class="sub">12 大模块，覆盖会展招商全生命周期</p>
+<div class="module-grid" id="moduleGrid"></div>
+</div>
+<script>
+const modules=[{"key":"module_1","label":"大会定位","icon":"🎯","desc":"一句话定位、目标受众、核心价值主张"},{"key":"module_2","label":"目标客户画像","icon":"👥","desc":"多维用户画像，锁定高价值人群"},{"key":"module_3","label":"核心卖点","icon":"💡","desc":"提炼差异化卖点与转化钩子"},{"key":"module_4","label":"招商合作方案","icon":"🤝","desc":"分级赞助体系与合作权益"},{"key":"module_5","label":"赞助权益设计","icon":"🏆","desc":"多层级赞助包与ROI测算"},{"key":"module_6","label":"嘉宾邀约话术","icon":"🎤","desc":"政府/专家/企业家/KOL 邀约脚本"},{"key":"module_7","label":"朋友圈推广文案","icon":"📱","desc":"全周期朋友圈推广文案"},{"key":"module_8","label":"短视频脚本","icon":"🎬","desc":"多类型短视频拍摄脚本"},{"key":"module_9","label":"社群运营SOP","icon":"💬","desc":"7 天社群冷启动运营流程"},{"key":"module_10","label":"客户分层策略","icon":"📊","desc":"A/B/C/D 跟进策略与转化率"},{"key":"module_11","label":"成交转化话术","icon":"🤖","desc":"三阶段成交跟进脚本"},{"key":"module_12","label":"执行清单","icon":"✅","desc":"30 天倒计时执行清单与应急预案"}];
+const grid=document.getElementById('moduleGrid');
+for(const m of modules){const div=document.createElement('div');div.className='module-card';div.innerHTML='<div class="icon">'+m.icon+'</div><h3>'+m.label+'</h3><p>'+m.desc+'</p><div class="badge">即将生成</div>';div.onclick=function(){location.href='/generate'};grid.appendChild(div)}
+</script>
+<div class="footer">MeetGrow AI v0.1.0 &mdash; 会展招商增长智能体系统</div>
+</body></html>

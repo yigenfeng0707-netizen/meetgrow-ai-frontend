@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetGrow AI - 会展招商增长方案生成器</title>
+<style>
+:root{--primary:#667eea;--primary-dark:#5a6fd6;--gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);--shadow:0 2px 12px rgba(0,0,0,0.08);--radius:12px;--bg:#f5f7fb;--card:#fff;--text:#1a1a2e;--muted:#8e8ea0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.navbar{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,0.06);position:sticky;top:0;z-index:100}
+.navbar-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.navbar .logo{font-weight:700;font-size:18px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.navbar .nav-links{display:flex;gap:20px;align-items:center}
+.navbar .nav-links a{font-size:14px;color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;gap:6px}
+.btn-primary{background:var(--gradient);color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary)}
+.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-sm{padding:6px 16px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 20px}
+.tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;background:rgba(102,126,234,.1);color:var(--primary)}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+<a href="/" class="logo">MeetGrow AI</a>
+<div class="nav-links">
+<a href="/login">登录</a>
+<a href="/login" class="btn btn-primary btn-sm">免费试用</a>
+</div></div></nav>
+<style>
+.hero{text-align:center;padding:80px 20px 60px;background:var(--gradient);color:#fff}
+.hero h1{font-size:42px;font-weight:800;margin-bottom:16px}
+.hero p{font-size:18px;opacity:.9;max-width:600px;margin:0 auto 32px;line-height:1.6}
+.hero .btn{font-size:16px;padding:14px 40px}
+.features{max-width:1100px;margin:0 auto;padding:60px 20px}
+.features h2{text-align:center;font-size:28px;margin-bottom:40px}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.feature-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;transition:transform .2s}
+.feature-card:hover{transform:translateY(-4px)}
+.feature-card .icon{width:44px;height:44px;border-radius:10px;background:var(--gradient);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;margin-bottom:14px}
+.feature-card h3{font-size:16px;margin-bottom:8px}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.5}
+.steps{max-width:800px;margin:0 auto;padding:60px 20px;text-align:center}
+.steps h2{font-size:28px;margin-bottom:40px}
+.step-row{display:flex;gap:30px;justify-content:center}
+.step{flex:1;max-width:240px}
+.step .num{width:40px;height:40px;border-radius:50%;background:var(--gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 12px}
+.step h4{font-size:15px;margin-bottom:6px}
+.step p{font-size:13px;color:var(--muted)}
+.cta{text-align:center;padding:60px 20px;background:var(--gradient);color:#fff}
+.cta h2{font-size:28px;margin-bottom:12px}
+.cta p{opacity:.9;margin-bottom:24px}
+.cta .btn{background:#fff;color:var(--primary);font-size:16px;padding:14px 40px}
+@media(max-width:640px){.hero h1{font-size:28px}.hero p{font-size:15px}.step-row{flex-direction:column;align-items:center}}
+</style>
+<section class="hero">
+<h1>用 AI 1 小时生成<br>专业会展招商方案</h1>
+<p>7 个 AI 智能体协同工作，从活动定位到执行清单，12 个模块一站式生成完整增长方案</p>
+<a href="/login" class="btn btn-primary">免费开始使用 &rarr;</a>
+</section>
+<section class="features">
+<h2>12 大生成模块</h2>
+<div class="feature-grid">
+<div class="feature-card"><div class="icon">🎯</div><h3>大会定位</h3><p>一句话定位、目标受众、核心价值主张与竞争差异化</p></div>
+<div class="feature-card"><div class="icon">👥</div><h3>目标客户画像</h3><p>多维度用户Profile，锁定高价值参会人群</p></div>
+<div class="feature-card"><div class="icon">💡</div><h3>核心卖点</h3><p>提炼活动独特卖点与转化钩子</p></div>
+<div class="feature-card"><div class="icon">🤝</div><h3>招商合作方案</h3><p>分级赞助体系与合作权益设计</p></div>
+<div class="feature-card"><div class="icon">🏆</div><h3>赞助权益设计</h3><p>钻石/黄金/白银/青铜多层级赞助包</p></div>
+<div class="feature-card"><div class="icon">🎤</div><h3>嘉宾邀约话术</h3><p>面向不同类型嘉宾的邀约脚本</p></div>
+<div class="feature-card"><div class="icon">📱</div><h3>朋友圈推广</h3><p>预热-报名-倒计时-现场-会后期朋友圈文案</p></div>
+<div class="feature-card"><div class="icon">🎬</div><h3>短视频脚本</h3><p>痛点共鸣/社会证明/紧迫感多类型脚本</p></div>
+<div class="feature-card"><div class="icon">💬</div><h3>社群运营SOP</h3><p>7 天社群冷启动与转化运营流程</p></div>
+<div class="feature-card"><div class="icon">📊</div><h3>客户分层策略</h3><p>A/B/C/D 四级客户跟进策略与转化率预估</p></div>
+<div class="feature-card"><div class="icon">🤖</div><h3>成交转化话术</h3><p>48h/7d/30d 三阶段成交跟进脚本</p></div>
+<div class="feature-card"><div class="icon">✅</div><h3>执行清单</h3><p>30 天倒计时执行清单与应急预案</p></div>
+</div>
+</section>
+<section class="steps">
+<h2>三步生成方案</h2>
+<div class="step-row">
+<div class="step"><div class="num">1</div><h4>描述活动</h4><p>用自然语言描述你的活动类型、目标客户和规模</p></div>
+<div class="step"><div class="num">2</div><h4>AI 自动生成</h4><p>7 个 AI 智能体协同分析，逐一输出 12 个模块</p></div>
+<div class="step"><div class="num">3</div><h4>查看与使用</h4><p>在线查看完整方案，直接落地执行</p></div>
+</div>
+</section>
+<section class="cta">
+<h2>准备好了吗？</h2>
+<p>马上体验 AI 驱动的会展增长方案生成</p>
+<a href="/login" class="btn">免费开始使用 &rarr;</a>
+</section>
+<div class="footer">MeetGrow AI v0.1.0 &mdash; 会展招商增长智能体系统</div>
+</body></html>
